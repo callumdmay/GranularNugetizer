@@ -51,31 +51,18 @@ namespace GranularNugetizer
              System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(rootFolder);
             foreach (System.IO.DirectoryInfo subDir in dir.GetDirectories().Where(subDir => !subDir.Name.Equals("bin")))
             {
+                Console.WriteLine("Nugetizing directory: "+subDir.Name+"...");
                 CreateNugetSpec(subDir);
                 ModifyAssemblyInfo(subDir);
+                Console.WriteLine("Finished");
             }
         }
 
-        public void ModifyAssemblyInfo(DirectoryInfo subDir)
-        {
-            if (File.Exists(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name)))
-            {
-                string assemblyText = File.ReadAllText(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name));
-                
-                assemblyText = assemblyText.Replace("AssemblyDescription(\"\")", String.Format("AssemblyDescription(\"{0}\")", subDir.Name + " description required"));
-                assemblyText = assemblyText.Replace("AssemblyCompany(\"\")", "AssemblyCompany(\"Replicon Inc.\")");
-                
-                if(!assemblyText.Contains("[assembly: AssemblyInformationalVersion(\"1.0.0.0\")]"))
-                    assemblyText += "\n[assembly: AssemblyInformationalVersion(\"1.0.0.0\")]";
-                
-                File.WriteAllText(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name), assemblyText);
-
-            }
-        }
+        
 
         public void CreateNugetSpec(DirectoryInfo subDir)
         {
-                Console.Write("Creating nuget spec for "+subDir.Name+"...");                
+                Console.Write("\tCreating nuget spec"+"...");                
                 ExecCommandLine(subDir.FullName, "/C nuget spec");
                 TrimLines(subDir);
                 Console.WriteLine("Done");
@@ -97,6 +84,28 @@ namespace GranularNugetizer
                 File.WriteAllText(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name), xdoc.ToString());
             }
         
+        }
+
+
+        public void ModifyAssemblyInfo(DirectoryInfo subDir)
+        {
+            Console.Write(String.Format("\tModifying AssemblyInfo.cs... "));
+
+            if (File.Exists(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name)))
+            {
+                string assemblyText = File.ReadAllText(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name));
+
+                assemblyText = assemblyText.Replace("AssemblyDescription(\"\")", String.Format("AssemblyDescription(\"{0}\")", subDir.Name + " description required"));
+                assemblyText = assemblyText.Replace("AssemblyCompany(\"\")", "AssemblyCompany(\"Replicon Inc.\")");
+
+                if (!assemblyText.Contains("[assembly: AssemblyInformationalVersion(\"1.0.0.0\")]"))
+                    assemblyText += "\n[assembly: AssemblyInformationalVersion(\"1.0.0.0\")]";
+
+                File.WriteAllText(String.Format(@"{0}\properties\AssemblyInfo.cs", subDir.FullName, subDir.Name), assemblyText);
+
+            }
+
+            Console.WriteLine("Done");
         }
 
 
