@@ -81,9 +81,23 @@ namespace GranularNugetizer
                     xdoc.Descendants(filter).Remove();
                 }
 
-                File.WriteAllText(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name), xdoc.ToString());
+                File.WriteAllText(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name), ToStringWithDeclaration(xdoc));
             }
         
+        }
+
+        public static string ToStringWithDeclaration(XDocument doc)
+        {
+            if (doc == null)
+            {
+                throw new ArgumentNullException("doc");
+            }
+            StringBuilder builder = new StringBuilder();
+            using (TextWriter writer = new StringWriter(builder))
+            {
+                doc.Save(writer);
+            }
+            return builder.ToString();
         }
 
 
