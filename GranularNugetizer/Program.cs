@@ -124,6 +124,8 @@ namespace GranularNugetizer
             process.StartInfo.RedirectStandardOutput = true;
 
             process.Start();
+
+            process.WaitForExit();
         }
 
 
