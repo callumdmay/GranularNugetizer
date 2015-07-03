@@ -17,7 +17,7 @@ namespace GranularNugetizer
 
         List<string> FailedDirectories = new List<string>();
 
-        bool OverWriteNuSpec;
+        bool? OverWriteNuSpec= null;
 
         public Nugetizer(string pFolder)
         {
@@ -70,28 +70,35 @@ namespace GranularNugetizer
                 {
                     Console.WriteLine(path);
                 }
+                Console.WriteLine();
+                Console.WriteLine("did you build the project/workspace before execution?");
             }
         }
 
 
         public void CreateNugetSpec(DirectoryInfo subDir)
         {
-            Console.Write("\tCreating nuget spec" + "...");
+            
             if (OverWriteNuSpec != null)
             {
                 if (OverWriteNuSpec == true)
+                {
+                    Console.Write("\tCreating nuget spec with overwrite enabled" + "...");
                     ExecCommandLine(subDir.FullName, "/C nuget spec -f");
+                }
                 else
                 {
+                    Console.Write("\tCreating nuget spec with overwrite disabled" + "...");
                     ExecCommandLine(subDir.FullName, "/C nuget spec ");
                 }
             }
             else
             {
+                Console.Write("\tCreating nuget spec with overwrite disabled" + "...");
                 ExecCommandLine(subDir.FullName, "/C nuget spec");
             }
 
-
+            Console.WriteLine();
             TrimLines(subDir);
             Console.WriteLine("Done");
         }
@@ -102,6 +109,7 @@ namespace GranularNugetizer
 
             if (File.Exists(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name)))
             {
+                Console.Write("\t\tTrimming lines from nuspec"+"...");
                 var xdoc = XDocument.Parse(File.ReadAllText(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name)));
 
                 foreach (string filter in NuSpecFilters)
@@ -110,6 +118,10 @@ namespace GranularNugetizer
                 }
 
                 File.WriteAllText(String.Format(@"{0}\{1}.nuspec", subDir.FullName, subDir.Name), ToStringWithDeclaration(xdoc));
+            }
+            else
+            {
+                throw new FileNotFoundException("The nuget spec could not be found during the trim files operation");
             }
 
         }
@@ -175,8 +187,6 @@ namespace GranularNugetizer
                 }
             }
         }
-
-
 
 
 
