@@ -165,7 +165,7 @@ namespace GranularNugetizer
 
         public void CreateNugetPackage(DirectoryInfo subDir)
         {
-            ExecCommandLine(subDir.FullName, "/C nuget pack -IncludeReferencedProjects");
+            ExecCommandLine(subDir.FullName, "/C nuget pack -IncludeReferencedProjects -Prop Platform=AnyCPU");
         }
 
 
